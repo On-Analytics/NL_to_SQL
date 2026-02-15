@@ -37,9 +37,14 @@ A conversational AI system designed to query PostgreSQL databases using natural 
    pip install -r requirements.txt
    ```
    *(Note: Ensure `agents-sdk` and `psycopg2` are installed.)*
-3. Create a `.env` file in the root directory and configure the following variables:
+3. Create a `.env` file by copying the template:
+   ```bash
+   cp .env.example .env
+   ```
+4. Open `.env` and configure your credentials:
    ```env
    POSTGRES_URL=postgresql://username:password@localhost:5432/database_name
+   OPENAI_API_KEY=your_openai_api_key_here
    POSTGRES_MCP_COMMAND=npx
    POSTGRES_MCP_ARGS=["-y", "@modelcontextprotocol/server-postgres", "--db-url", "postgresql://username:password@localhost:5432/database_name"]
    ```

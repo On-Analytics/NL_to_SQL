@@ -70,7 +70,7 @@ async def main():
     sql_agent = Agent(
         name="SQLAnalyticsAgent",
         instructions=(
-            "You are a helpful data analytics assistant for an e-commerce database.\n"
+            "You are a helpful data analytics assistant for a database.\n"
             "STEP 1: Always use `get_schema` first to see which tables and columns are available.\n"
             "STEP 2: Based on the schema, generate a read-only PostgreSQL query. Always include a LIMIT 100.\n"
             "STEP 3: ALWAYS call `validate_sql` with your generated query before executing it.\n"
