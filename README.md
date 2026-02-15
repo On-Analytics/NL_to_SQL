@@ -5,7 +5,7 @@ A conversational AI system designed to query PostgreSQL databases using natural 
 ## Features
 
 - **Natural Language to SQL**: Translates user questions into syntactically correct PostgreSQL queries.
-- **Dynamic Schema Retrieval**: Automatically discovers database schema at runtime to ensure query accuracy.
+- **Dynamic Schema Retrieval (Schema-Agnostic)**: Automatically discovers database schema at runtime. This allows the agent to adapt to **any** table structure, columns, or data types within the PostgreSQL `public` schema without manual configuration.
 - **SQL Safety Validator**: A mandatory layer that enforces read-only access and prevents dangerous operations (e.g., `DROP`, `DELETE`).
 - **MCP Integration**: Executes queries via a PostgreSQL MCP server for standardized database interaction.
 - **Multi-Turn Conversations**: Maintains context across multiple exchanges, allowing for follow-up questions and iterative data exploration.
