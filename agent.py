@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import asyncio
+import re
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 
@@ -36,18 +37,13 @@ postgres_mcp = MCPServerStdio(
 async def validate_sql(sql: str) -> str:
     """
     Validates a generated SQL query for safety and read-only compliance.
-    Returns the validated SQL string or an error message.
+    Returns the validated SQL string if safe, or an error message starting with 'Error:'.
     """
     try:
-        # Check for non-read-only keywords
-        forbidden = ["INSERT", "UPDATE", "DELETE", "DROP", "TRUNCATE", "ALTER", "CREATE"]
-        if any(word in sql.upper() for word in forbidden):
-            return "Error: Only SELECT queries are allowed."
-        
         safe_sql = validator.validate(sql)
         return safe_sql
     except Exception as e:
-        return f"Validation Error: {e}"
+        return f"Error during validation: {e}"
 
 @function_tool
 def get_schema(search_query: str = "") -> str:
@@ -70,12 +66,16 @@ async def main():
     sql_agent = Agent(
         name="SQLAnalyticsAgent",
         instructions=(
-            "You are a helpful data analytics assistant for a database.\n"
-            "STEP 1: Always use `get_schema` first to see which tables and columns are available.\n"
-            "STEP 2: Based on the schema, generate a read-only PostgreSQL query. Always include a LIMIT 100.\n"
-            "STEP 3: ALWAYS call `validate_sql` with your generated query before executing it.\n"
-            "STEP 4: If `validate_sql` confirms the query is safe, use the `query` tool from the MCP server to execute it.\n"
-            "STEP 5: Present the data to the user in a clear summary. If no results found, let them know."
+            "You are a professional SQL Data Analyst assistant.\n"
+            "Your goal is to answer user questions by querying a PostgreSQL database.\n\n"
+            "CRITICAL RULES:\n"
+            "1. ALWAYS start by calling `get_schema` to understand the available tables and columns.\n"
+            "2. Generate a valid PostgreSQL SELECT query based ON THE SCHEMA. Do not guess column names.\n"
+            "3. BEFORE executing any query, you MUST call `validate_sql`. Pass the raw SQL string as the argument.\n"
+            "4. IMPORTANT: If `validate_sql` returns a string that does NOT start with 'Error:', then use THAT returned string to call the MCP `query` tool.\n"
+            "5. If `validate_sql` returns an 'Error:', explain the issue to the user and refine your query.\n"
+            "6. Always include a LIMIT 100 in your queries if not already present.\n"
+            "7. After getting the data from the `query` tool, provide a concise summary or table to the user."
         ),
         tools=[
             get_schema, 
